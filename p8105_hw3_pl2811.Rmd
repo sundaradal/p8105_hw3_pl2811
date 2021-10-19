@@ -18,23 +18,37 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r}
 library(tidyverse)
 library(dplyr)
+library(ggridges)
+library(ggplot2)
 library(p8105.datasets)
 data("instacart")
 skimr::skim(instacart)
+```
+
+```{r}
+###How many aisles are there, and which aisles are the most items ordered from?
 select(instacart, aisle)
 
-aisle_count<-instacart %>% 
-    group_by(aisle) %>% 
-    count()
 
 aisle_count<-instacart %>% 
     group_by(aisle) %>% 
     count()
-    summarise(max = max(n, na.rm=TRUE))
 
-    
-    aisle_count %>%
-pull(n)%>%
-max()
+ aisle_order= order(aisle_count$n, decreasing=T)
+ aisle__sorted = aisle_count[aisle_order,]
+ head(aisle__sorted, 1)
+ ###
 ```
+
+```{r}
+instacart_order<-filter( aisle_count, n > 1000)
+
+### Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+
+```
+Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+
+
+
 
