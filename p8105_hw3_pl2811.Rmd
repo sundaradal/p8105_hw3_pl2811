@@ -37,7 +37,7 @@ aisle_count<-instacart %>%
 
  aisle_order= order(aisle_count$n, decreasing=T)
  aisle_sorted = aisle_count[aisle_order,]
- head(aisle__sorted, 1)
+ head(aisle_sorted, 1)
  ###
 ```
 
@@ -59,15 +59,40 @@ theme_bw()
 
 popular_items<-select(instacart, aisle, product_name)
 
-popular_items<-filter(popular_items, aisle %in% c("dog food care","packaged vegetables fruits","baking ingredients"))
+popular_items<-filter(popular_items, aisle %in% c("dog food care", "baking ingredients","packaged vegetables fruits" ))
 
 popular_items_tables<-popular_items %>% 
-    group_by(aisle) %>% 
+    group_by(product_name, aisle) %>% 
     count()
+
+aisle_popular<-popular_items_tables %>% 
+    group_by(aisle) %>% 
+    top_n(1, n)
+
+aisle_popular
 ```
 
 ```{r}
-### Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table)
+### Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; 
+# format this table for human readers (i.e. produce a 2 x 7 table)
+
+
+week<-filter(instacart, product_name %in% c("Pink Lady Apples", "Coffee Ice Cream"))
+week<-select(week, order_dow, order_hour_of_day, product_name )
+week<- week %>%
+  group_by(order_dow, product_name ) %>%
+  summarise_at(vars(order_hour_of_day), list(mean= mean))
+
+week<-pivot_wider(
+ week, 
+  names_from = "product_name", 
+  values_from = "mean")
+
+ week= subset(week, select = -c( order_dow ))
+
+
+
+
 ```
 
 
