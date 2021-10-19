@@ -20,6 +20,7 @@ library(tidyverse)
 library(dplyr)
 library(ggridges)
 library(ggplot2)
+library(forcats)
 library(p8105.datasets)
 data("instacart")
 skimr::skim(instacart)
@@ -35,19 +36,39 @@ aisle_count<-instacart %>%
     count()
 
  aisle_order= order(aisle_count$n, decreasing=T)
- aisle__sorted = aisle_count[aisle_order,]
+ aisle_sorted = aisle_count[aisle_order,]
  head(aisle__sorted, 1)
  ###
 ```
 
 ```{r}
-instacart_order<-filter( aisle_count, n > 1000)
-
 ### Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+instacart_order<-filter(aisle_sorted, n > 10000)
+instacart_order %>%
+mutate(name = fct_reorder(aisle, desc(n))) %>%
+ggplot( aes(x=aisle, y=n)) +
+geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+coord_flip() +
+xlab("") +
+theme_bw()
 
 ```
-Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
-Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+
+```{r}
+### Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+
+popular_items<-select(instacart, aisle, product_name)
+
+popular_items<-filter(popular_items, aisle %in% c("dog food care","packaged vegetables fruits","baking ingredients"))
+
+popular_items_tables<-popular_items %>% 
+    group_by(aisle) %>% 
+    count()
+```
+
+```{r}
+### Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table)
+```
 
 
 
