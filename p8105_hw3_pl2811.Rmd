@@ -9,12 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 ```{r}
 library(tidyverse)
 library(dplyr)
@@ -25,27 +19,36 @@ library(p8105.datasets)
 library(httr)
 library(jsonlite)
 library(viridis)
-data("instacart")
-skimr::skim(instacart)
+library(patchwork)
+library(knitr)    
+library(png)
+
 ```
 
-```{r}
+
 ###How many aisles are there, and which aisles are the most items ordered from?
-select(instacart, aisle)
+```{r}
+data("instacart")
+skimr::skim(instacart)
+
 
 
 aisle_count<-instacart %>% 
     group_by(aisle) %>% 
     count()
-
+skimr::skim(aisle_count)
+```
+#There are 134 aisles
+```{r}
  aisle_order= order(aisle_count$n, decreasing=T)
  aisle_sorted = aisle_count[aisle_order,]
  head(aisle_sorted, 1)
- ###
 ```
+# most items ordered from fresh vegetables
 
-```{r}
+
 ### Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+```{r}
 instacart_order<-filter(aisle_sorted, n > 10000)
 instacart_order %>%
 mutate(name = fct_reorder(aisle, desc(n))) %>%
@@ -57,12 +60,13 @@ theme_bw()
 
 ```
 
-```{r}
-### Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
 
+### Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+```{r}
 popular_items<-select(instacart, aisle, product_name)
 
-popular_items<-filter(popular_items, aisle %in% c("dog food care", "baking ingredients","packaged vegetables fruits" ))
+popular_items<-filter(popular_items, aisle %in% c("dog food care", "baking ingredients",
+                                                  "packaged vegetables fruits" ))
 
 popular_items_tables<-popular_items %>% 
     group_by(product_name, aisle) %>% 
@@ -75,11 +79,11 @@ aisle_popular<-popular_items_tables %>%
 aisle_popular
 ```
 
-```{r}
+
 ### Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; 
 # format this table for human readers (i.e. produce a 2 x 7 table)
 
-
+```{r}
 week<-filter(instacart, product_name %in% c("Pink Lady Apples", "Coffee Ice Cream"))
 week<-select(week, order_dow, order_hour_of_day, product_name )
 week<- week %>%
@@ -92,8 +96,7 @@ week<-pivot_wider(
   values_from = "mean")
 
  week= subset(week, select = -c( order_dow ))
-
-
+week
 
 
 ```
@@ -117,8 +120,9 @@ overall_health<-overall_health[order(factor(overall_health$response, levels = ta
 
 ```
 
-```{r}
+
 #In 2002, which states were observed at 7 or more locations? What about in 2010?
+```{r}
 overall_health_2002<-filter(overall_health, year %in% c("2002"))
 location<- overall_health_2002 %>%
   group_by(locationabbr)%>% 
@@ -126,6 +130,10 @@ location<- overall_health_2002 %>%
 
 location02_over_7<-filter(location, n>=7)
 location02_over_7
+```
+# Table location02_over_7 shows the 36 states were observed at 7 or more locations in 2002.
+
+```{r}
 overall_health_2010<-filter(overall_health, year %in% c("2010"))
 location<- overall_health_2010 %>%
   group_by(locationabbr)%>% 
@@ -134,12 +142,14 @@ location<- overall_health_2010 %>%
 location10_over_7<-filter(location, n>=7)
 location10_over_7
 
-```
-    
-    
-```{r}
-#Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state.
 
+```
+# Table location10_over_7 shows the 36 states were observed at 7 or more locations in 201o.
+    
+    
+
+###Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state.
+```{r}
 brfss_s<-select(brfss_smart2010, year, locationabbr,locationdesc,response, data_value)
 
 brfss_s<-filter(brfss_s, response%in% c("Excellent"))
@@ -149,14 +159,17 @@ brfss_ss<- brfss_s %>%
 group_by(locationabbr, year) %>%
 summarise_at(vars(data_value), list(mean= mean))
 brfss_ss
-#Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
+```
 
+
+#Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
+```{r}
 ggplot(brfss_ss, aes(x = year, y = mean, color =locationabbr)) + 
   geom_smooth(se = FALSE) 
+```
 
-ggplot(data =brfss_ss, aes(x = year, y = mean, color = locationabbr)) +
- geom_line() +
-facet_wrap(~ locationabbr)
+```{r}
+#since this spaghetti plot is too complicate to read,we separate each states to made it more easy to read.
 
 ggplot(data =brfss_ss, aes(x = year, y = mean, color = locationabbr)) +
  geom_line() +
@@ -171,12 +184,9 @@ facet_wrap(~ locationabbr)+
 ```
 #Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
 ```{r, eval=FALSE}
-ny06<-filter(brfss_smart2010, locationabbr%in% c("NY"),year==2006)
+ny06<-filter(brfss, locationabbr%in% c("NY"),year==2006)
 ny06<-filter(ny06, response %in% c("Poor","Fair","Good","Very good", "Excellent"))
 
-library(ggridges)
-```
-```{r}
 a<-ny06 %>%
   mutate(response= fct_reorder(response, data_value)) %>%
   ggplot( aes(y=response, x=data_value)) +
@@ -194,7 +204,7 @@ a<-ny06 %>%
 
  
 
-ny10<-filter(brfss_smart2010, locationabbr%in% c("NY"),year==2010 )
+ny10<-filter(brfss, locationabbr%in% c("NY"),year==2010 )
 
 ny10<-filter(ny10, response %in% c("Poor","Fair","Good","Very good", "Excellent"))
 
@@ -217,6 +227,65 @@ b<-ny10 %>%
 a+b
 ```
 
+```{r}
+img1_path <- "/Users/lin/Desktop/a+b.png"
+img1 <- readPNG(img1_path, native = TRUE, info = TRUE)
+attr(img1, "info")
+```
+
+
+```{r}
+accel_data<- read.csv(file ="/Users/lin/Desktop/accel_data.csv")
+```
+#Load, tidy, and otherwise wrangle the data. Your final dataset should include all originally observed variables and values; have useful variable names; include a weekday vs weekend variable; and encode data with reasonable variable classes. Describe the resulting dataset (e.g. what variables exist, how many observations, etc).
+```{r}
+accel_data<-mutate(accel_data, week_d= ifelse(day== "Sunday", "weekend",
+                                             (ifelse(day== "Sunday", 
+                                                     "weekend", "weekday"))))
+
+
+# There are 35 observations, represents 35 days of trials. There are 1444 variables, other than the week_d variable, we also have week, day_id, day, and activity.1 to activity.1440(as 1440 minutes/ 24 hours of one day).
+```
+#Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+```{r,eval=FALSE}
+accel_data<-accel_data%>%
+    mutate(total = select(.,activity.1:activity.1440) %>%
+               rowSums(na.rm = TRUE))
+
+total_act<-select(accel_data,day_id, total) 
+#since Table is hard to observed any trends , we make plot to see is any trends apparent?
+p <- ggplot(data = accel_data, aes(x = day_id, y = total)) + 
+     geom_line(color = "#00AFBB", size = 1)
+accel_data%>%
+  ggplot( aes(x=day_id)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)+
+     theme_ipsum()
+
+total_act
+#didn't  observe particular trends apparent
+
+```
+#Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
+```{r}
+accel_data<-accel_data%>%
+    mutate(total = select(.,activity.1:activity.1440) %>%
+               rowSums(na.rm = TRUE))
+
+total_act<-select(accel_data,day_id, total) 
+
+accel_data<-mutate(accel_data, weeknum = ifelse(day_id < 8, "weeke1",
+                                             ifelse(day_id < 15, "weeke2",
+                                             ifelse(day_id < 22 , "weeke3",
+                                             ifelse(day_id < 29 , "weeke4","weeke5")))))
+
+accel_data %>%
+  ggplot(aes( weeknum,total, fill= day))+
+  geom_col(position="dodge") +
+  labs(title="Stacked Barplot: Side By Side",
+        x="Week", y= "Daily  Activity")
+
+
+```
 
 
 
