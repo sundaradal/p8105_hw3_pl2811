@@ -100,11 +100,10 @@ week<- week %>%
 week<-pivot_wider(
  week, 
   names_from ="order_dow", 
-  values_from =  "mean")
+  values_from =  "mean")%>%
+knitr::kable()
 
-   knitr::kable()
 week
-
 
 ```
 
@@ -300,10 +299,10 @@ accel_data<-accel_data%>%
 
 total_act<-select(accel_data,day_id, total) 
 
-accel_data<-mutate(accel_data, weeknum = ifelse(day_id < 8, "weeke1",
-                                             ifelse(day_id < 15, "weeke2",
-                                             ifelse(day_id < 22 , "weeke3",
-                                             ifelse(day_id < 29 , "weeke4","weeke5")))))
+accel_data<-mutate(accel_data, weeknum = ifelse(day_id < 8, "week 1",
+                                             ifelse(day_id < 15, "week 2",
+                                             ifelse(day_id < 22 , "week 3",
+                                             ifelse(day_id < 29 , "week 4","week 5")))))
 
 accel_data %>%
   ggplot(aes( weeknum,total, fill= day))+
