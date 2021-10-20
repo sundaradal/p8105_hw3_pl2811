@@ -5,9 +5,6 @@ date: "10/18/2021"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ```{r}
 library(tidyverse)
@@ -27,26 +24,31 @@ library(png)
 
 
 ###How many aisles are there, and which aisles are the most items ordered from?
-```{r}
+```{r, eval=FALSE}
 data("instacart")
-skimr::skim(instacart)
+skimr::skim(aisle_count)
+```
 
 
-
+```{r}
 aisle_count<-instacart %>% 
     group_by(aisle) %>% 
     count()
-skimr::skim(aisle_count)
+
+
 ```
 #There are 134 aisles
+
 ```{r}
  aisle_order= order(aisle_count$n, decreasing=T)
  aisle_sorted = aisle_count[aisle_order,]
  head(aisle_sorted, 1)
+
 ```
 # most items ordered from fresh vegetables
 
 
+ 
 ### Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
 ```{r}
 instacart_order<-filter(aisle_sorted, n > 10000)
@@ -129,23 +131,23 @@ location<- overall_health_2002 %>%
     count()
 
 location02_over_7<-filter(location, n>=7)
-location02_over_7
-```
-# Table location02_over_7 shows the 36 states were observed at 7 or more locations in 2002.
+view(location02_over_7)
+knitr::kable(location02_over_7, "pipe")
 
-```{r}
+
+
 overall_health_2010<-filter(overall_health, year %in% c("2010"))
 location<- overall_health_2010 %>%
   group_by(locationabbr)%>% 
     count()
 
 location10_over_7<-filter(location, n>=7)
-location10_over_7
-
-
+knitr::kable(location10_over_7, "pipe")
 ```
-# Table location10_over_7 shows the 36 states were observed at 7 or more locations in 201o.
-    
+# Table location02_over_7 shows the 36 states were observed at 7 or more locations in 2002.
+# Table location10_over_7 shows the 36 states were observed at 7 or more locations in 2010.
+
+ 
     
 
 ###Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state.
@@ -162,14 +164,14 @@ brfss_ss
 ```
 
 
-#Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
+###Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
 ```{r}
 ggplot(brfss_ss, aes(x = year, y = mean, color =locationabbr)) + 
   geom_smooth(se = FALSE) 
 ```
 
 ```{r}
-#since this spaghetti plot is too complicate to read,we separate each states to made it more easy to read.
+
 
 ggplot(data =brfss_ss, aes(x = year, y = mean, color = locationabbr)) +
  geom_line() +
@@ -178,11 +180,21 @@ facet_wrap(~ locationabbr)+
         x = 'Year',
         y = 'Mean') +
     theme_bw() +
-    theme(axis.text.x = element_text(colour="grey20", size=12, angle=90, hjust=.5, vjust=.5),
+    theme(axis.text.x = element_text(colour="grey20", size=8, angle=90, hjust=.5, vjust=.5),
                         axis.text.y = element_text(colour="grey20", size=12),
           text=element_text(size=16))
 ```
+
+
+
+
+
+#since this spaghetti plot is too complicate to read,we separate each states to made it more easy to read.
+
+
+
 #Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
+
 ```{r, eval=FALSE}
 ny06<-filter(brfss, locationabbr%in% c("NY"),year==2006)
 ny06<-filter(ny06, response %in% c("Poor","Fair","Good","Very good", "Excellent"))
@@ -225,13 +237,11 @@ b<-ny10 %>%
   xlab("2010_data_value")  
 
 a+b
-```
+#There are some error invovle theme_ipsum and R markdown so I use eval=FALSE. However the code run well on console.
 
-```{r}
-img1_path <- "/Users/lin/Desktop/a+b.png"
-img1 <- readPNG(img1_path, native = TRUE, info = TRUE)
-attr(img1, "info")
 ```
+![ ](/Users/lin/Desktop/a+b.png){width=65%}
+
 
 
 ```{r}
@@ -244,9 +254,16 @@ accel_data<-mutate(accel_data, week_d= ifelse(day== "Sunday", "weekend",
                                                      "weekend", "weekday"))))
 
 
-# There are 35 observations, represents 35 days of trials. There are 1444 variables, other than the week_d variable, we also have week, day_id, day, and activity.1 to activity.1440(as 1440 minutes/ 24 hours of one day).
+
 ```
-#Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+
+
+# There are 35 observations, represents 35 days of trials. There are 1444 variables, other than the week_d variable, we also have week, day_id, day, and activity.1 to activity.1440(as 1440 minutes/ 24 hours of one day).
+
+
+
+
+###Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
 ```{r,eval=FALSE}
 accel_data<-accel_data%>%
     mutate(total = select(.,activity.1:activity.1440) %>%
@@ -262,10 +279,15 @@ accel_data%>%
      theme_ipsum()
 
 total_act
-#didn't  observe particular trends apparent
+
 
 ```
-#Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
+
+#didn't  observe particular trends apparent
+
+
+
+###Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
 ```{r}
 accel_data<-accel_data%>%
     mutate(total = select(.,activity.1:activity.1440) %>%
