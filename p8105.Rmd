@@ -1,10 +1,13 @@
 ---
-title: "p8105_hw3_pl2811"
-author: "Pei Hsin Lin"
-date: "10/18/2021"
 output:
   pdf_document: default
   html_document: default
+---
+ ---
+title: "p8105_hw3_pl2811"
+author: "Pei Hsin Lin"
+date: "10/18/2021"
+output: html_document
 ---
 
 
@@ -310,7 +313,6 @@ accel_data %>%
 
 
 ```
-
 
 
 
