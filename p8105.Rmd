@@ -81,7 +81,7 @@ popular_items_tables<-popular_items %>%
 
 aisle_popular<-popular_items_tables %>% 
     group_by(aisle) %>% 
-    top_n(1, n)
+    top_n(3, n)
 
 aisle_popular
 ```
@@ -99,10 +99,10 @@ week<- week %>%
 
 week<-pivot_wider(
  week, 
-  names_from = "product_name", 
-  values_from = "mean")
+  names_from ="order_dow", 
+  values_from =  "mean")
 
- week= subset(week, select = -c( order_dow ))
+   knitr::kable()
 week
 
 
