@@ -135,7 +135,7 @@ location<- overall_health_2002 %>%
   group_by(locationabbr)%>% 
     count()
 
-location02_over_7<-filter(location, n>=7)
+location02_over_7<-filter(location, n>=35)
 view(location02_over_7)
 knitr::kable(location02_over_7, "pipe")
 
@@ -146,11 +146,11 @@ location<- overall_health_2010 %>%
   group_by(locationabbr)%>% 
     count()
 
-location10_over_7<-filter(location, n>=7)
+location10_over_7<-filter(location, n>=35)
 knitr::kable(location10_over_7, "pipe")
 ```
-# Table location02_over_7 shows the 36 states were observed at 7 or more locations in 2002.
-# Table location10_over_7 shows the 36 states were observed at 7 or more locations in 2010.
+# Table location02_over_7 shows the 6 states were observed at 7 or more locations in 2002.
+# Table location10_over_7 shows the 14 states were observed at 7 or more locations in 2010.
 
  
     
