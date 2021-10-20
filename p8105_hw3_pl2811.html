@@ -190,6 +190,16 @@ library(ggridges)
 library(ggplot2)
 library(forcats)
 library(p8105.datasets)
+library(httr)
+library(jsonlite)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;jsonlite&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     flatten</code></pre>
+<pre class="r"><code>library(viridis)</code></pre>
+<pre><code>## Loading required package: viridisLite</code></pre>
+<pre class="r"><code>library(patchwork)
 data(&quot;instacart&quot;)
 skimr::skim(instacart)</code></pre>
 <table>
@@ -514,7 +524,81 @@ aisle_popular</code></pre>
 ## 1 Light Brown Sugar                             baking ingredients           499
 ## 2 Organic Baby Spinach                          packaged vegetables fruits  9784
 ## 3 Snack Sticks Chicken &amp; Rice Recipe Dog Treats dog food care                 30</code></pre>
-<pre class="r"><code>### Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table),&quot;packaged vegetables fruits&quot;,&quot;baking ingredients&quot;</code></pre>
+<pre class="r"><code>### Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; 
+# format this table for human readers (i.e. produce a 2 x 7 table)
+
+
+week&lt;-filter(instacart, product_name %in% c(&quot;Pink Lady Apples&quot;, &quot;Coffee Ice Cream&quot;))
+week&lt;-select(week, order_dow, order_hour_of_day, product_name )
+week&lt;- week %&gt;%
+  group_by(order_dow, product_name ) %&gt;%
+  summarise_at(vars(order_hour_of_day), list(mean= mean))
+
+week&lt;-pivot_wider(
+ week, 
+  names_from = &quot;product_name&quot;, 
+  values_from = &quot;mean&quot;)
+
+ week= subset(week, select = -c( order_dow ))</code></pre>
+<pre class="r"><code>library(p8105.datasets)
+data(&quot;brfss_smart2010&quot;)
+brfss_smart2010=brfss_smart2010%&gt;%
+  janitor::clean_names()
+
+overall_health&lt;-filter(brfss_smart2010,topic %in% c(&quot;Overall Health&quot;))
+overall_health&lt;-filter(brfss_smart2010, response %in% c(&quot;Poor&quot;,&quot;Fair&quot;,&quot;Good&quot;,&quot;Very good&quot;, &quot;Excellent&quot;))
+topic&lt;-overall_health %&gt;% 
+    group_by(response) %&gt;% 
+    count()
+
+
+target &lt;- c(&quot;Poor&quot;,&quot;Fair&quot;,&quot;Good&quot;,&quot;Very good&quot;, &quot;Excellent&quot;)
+overall_health&lt;-overall_health[order(factor(overall_health$response, levels = target)),]</code></pre>
+<pre class="r"><code>#In 2002, which states were observed at 7 or more locations? What about in 2010?
+overall_health_2002&lt;-filter(overall_health, year %in% c(&quot;2002&quot;))
+location&lt;- overall_health_2002 %&gt;%
+  group_by(locationabbr)%&gt;% 
+    count()
+
+location02_over_7&lt;-filter(location, n&gt;=7)
+location02_over_7</code></pre>
+<pre><code>## # A tibble: 36 × 2
+## # Groups:   locationabbr [36]
+##    locationabbr     n
+##    &lt;chr&gt;        &lt;int&gt;
+##  1 AZ              10
+##  2 CO              20
+##  3 CT              35
+##  4 DE              15
+##  5 FL              35
+##  6 GA              15
+##  7 HI              20
+##  8 ID              10
+##  9 IL              15
+## 10 IN              10
+## # … with 26 more rows</code></pre>
+<pre class="r"><code>overall_health_2010&lt;-filter(overall_health, year %in% c(&quot;2010&quot;))
+location&lt;- overall_health_2010 %&gt;%
+  group_by(locationabbr)%&gt;% 
+    count()
+
+location10_over_7&lt;-filter(location, n&gt;=7)
+location10_over_7</code></pre>
+<pre><code>## # A tibble: 45 × 2
+## # Groups:   locationabbr [45]
+##    locationabbr     n
+##    &lt;chr&gt;        &lt;int&gt;
+##  1 AL              15
+##  2 AR              15
+##  3 AZ              15
+##  4 CA              60
+##  5 CO              35
+##  6 CT              25
+##  7 DE              15
+##  8 FL             205
+##  9 GA              20
+## 10 HI              20
+## # … with 35 more rows</code></pre>
 </div>
 
 

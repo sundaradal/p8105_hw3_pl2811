@@ -22,6 +22,10 @@ library(ggridges)
 library(ggplot2)
 library(forcats)
 library(p8105.datasets)
+library(httr)
+library(jsonlite)
+library(viridis)
+library(patchwork)
 data("instacart")
 skimr::skim(instacart)
 ```
@@ -94,6 +98,50 @@ week<-pivot_wider(
 
 
 ```
+
+```{r}
+library(p8105.datasets)
+data("brfss_smart2010")
+brfss_smart2010=brfss_smart2010%>%
+  janitor::clean_names()
+
+overall_health<-filter(brfss_smart2010,topic %in% c("Overall Health"))
+overall_health<-filter(brfss_smart2010, response %in% c("Poor","Fair","Good","Very good", "Excellent"))
+topic<-overall_health %>% 
+    group_by(response) %>% 
+    count()
+
+
+target <- c("Poor","Fair","Good","Very good", "Excellent")
+overall_health<-overall_health[order(factor(overall_health$response, levels = target)),]
+
+
+```
+
+```{r}
+#In 2002, which states were observed at 7 or more locations? What about in 2010?
+overall_health_2002<-filter(overall_health, year %in% c("2002"))
+location<- overall_health_2002 %>%
+  group_by(locationabbr)%>% 
+    count()
+
+location02_over_7<-filter(location, n>=7)
+location02_over_7
+overall_health_2010<-filter(overall_health, year %in% c("2010"))
+location<- overall_health_2010 %>%
+  group_by(locationabbr)%>% 
+    count()
+
+location10_over_7<-filter(location, n>=7)
+location10_over_7
+
+```
+    
+    
+
+  
+
+
 
 
 
